@@ -11,15 +11,14 @@ class PetsTable extends Component {
     loading: true,
     errors: [],
     successMessage: null,
-    newPet: {
+    newPet: {  //setting pet details for the new pet add
       name: "",
       petBreed: "",
       petColor: "",
       petOwnerId: "",
       imageUrl: "",
-
       editingPetId: null,
-  updatedPetDetails: {
+  updatedPetDetails: { //setting our new pet details
     newName: "",
     newPetBreed: "",
     newPetColor: "",
@@ -29,14 +28,19 @@ class PetsTable extends Component {
 
     },
   };
+  //edit pet function
   startEditing = (pet) => {
+    
     this.setState({
       editingPetId: pet.id,
-      updatedPetDetails: {
-        ...pet,
-        petOwnerId: pet.petOwner.id.toString() // Convert to string for the dropdown
+      updatedPetDetails: { //setting default on update to original values
+        newName: pet.name,
+      newPetBreed: pet.petBreed,
+      newPetColor: pet.petColor,
+      newPetOwnerId: pet.petOwner.id.toString(),
+      newImageUrl: pet.imageUrl
       }
-    });
+    });   
   };
   
 
@@ -44,6 +48,7 @@ class PetsTable extends Component {
     this.fetchData();
   };
 
+  //displaying DB data
   renderTable = () => {
     return (
       <div className="table-responsive">
@@ -54,14 +59,14 @@ class PetsTable extends Component {
           <thead>
             <tr>
 
-        <th>Picture</th>
+            <th>Picture</th>
             <th>Name</th>
-
               <th>Breed</th>
               <th>Color</th>
               <th>Checked In</th>
               <th>Pet Owner</th>
-              <th></th>
+              <th>Actions</th>
+             
             </tr>
           </thead>
           <tbody>
@@ -86,27 +91,28 @@ class PetsTable extends Component {
           : "Not Checked In"}
       </td>
       <td>{pet.petOwner.name}</td>
-      <td>
+      <td className="buttons-column">
+        
         {pet.checkedInAt !== "0001-01-01T00:00:00" ? (
           <button
             onClick={() => this.checkOut(pet.id)}
             className="btn btn-sm btn-info ml-1 mr-1"
           >
-            check out
+            Check out
           </button>
         ) : (
           <button
             onClick={() => this.checkIn(pet.id)}
             className="btn btn-sm btn-info ml-1 mr-1"
           >
-            check in
+            Check in
           </button>
         )}
         <button
           onClick={() => this.delete(pet.id)}
           className="btn btn-sm btn-danger"
         >
-          del
+          Delete
         </button>
         <button
   onClick={() => this.startEditing(pet)}
@@ -131,32 +137,36 @@ class PetsTable extends Component {
       </div>
     );
   };
-
+ // function to add a new pet
   addPet = async () => {
     try {
       await axios.post("api/pets/", this.state.newPet);
+      this.setState({ newPet: { ...this.state.newPet, 
+      name: "", 
+      petBreed: "",
+      petColor: "",
+      petOwnerId: "",
+      imageUrl: "", 
+      editingPetId: null
+    } })
+      
       this.fetchData();
       toast.success("Successfully added pet!");
-      // this.setState({
-      //   errors: [],
-      //   successMessage: "Successfully added pet!",
-      // });
+ 
     } catch (err) {
       console.log(err);
         if (err.response.status === 400) {
          //validation errors
          
          toast.error(err.message);
-        // this.setState({
-        //   errors: err.response.data.errors,
-        //  successMessage: null,
-        // });
+    
         };
         
       }
     
+  
   };
-
+ //renders error messages from backend
   renderMessages = () => {
     /*
          Look into the local state to see if we have any errors
@@ -193,37 +203,39 @@ class PetsTable extends Component {
 
     return null;
   };
-
+  // displaying new form to update pet info
   renderUpdateForm = (pet) => {
+    console.log(pet.id);
     return (
       <div>
         <div className="form-group row ml-0 mr-0">
-        <input
-            placeholder={"Pet Image URL"}
-            className={"form-control col-md-2 mr-2"}
-            value={this.state.newPet.newImageUrl}
-            onChange={(e) =>
-              this.setState({
-                newPet: { ...this.state.newPet, newImageUrl: e.target.value },
-              })
-            }
-          />
           <input
-            placeholder={"pet name"}
-            className={"form-control col-md-2 mr-2"}
-            value={this.state.newPet.newName}
-            onChange={(e) =>
-              this.setState({
-                newPet: { ...this.state.newPet, newName: e.target.value },
-              })
-            }
+              placeholder={"Pet Image URL"}
+              className={"form-control col-md-2 mr-2"}
+              value={this.state.updatedPetDetails.newImageUrl}
+              onChange={(e) =>
+                this.setState({
+                  updatedPetDetails: { ...this.state.updatedPetDetails, newImageUrl: e.target.value },
+                })
+              }
+            />
+
+          <input
+              placeholder={"pet name"}
+              className={"form-control col-md-2 mr-2"}
+              value={this.state.updatedPetDetails.newName}
+              onChange={(e) =>
+                this.setState({
+                  updatedPetDetails: { ...this.state.updatedPetDetails, newName: e.target.value },
+                })
+              }
           />
           <select
             className={"form-control col-md-2 mr-2"}
-            value={this.state.newPet.newPetBreed}
+            value={this.state.updatedPetDetails.newPetBreed}
             onChange={(e) =>
               this.setState({
-                newPet: { ...this.state.newPet, newPetBreed: e.target.value },
+                updatedPetDetails: { ...this.state.updatedPetDetails, newPetBreed: e.target.value },
               })
             }
           >
@@ -241,11 +253,11 @@ class PetsTable extends Component {
           </select>
           <select
             className={"form-control col-md-2 mr-2"}
-            value={this.state.newPet.newPetColor}
-            onChange={(e) =>
-              this.setState({
-                newPet: { ...this.state.newPet, newPetColor: e.target.value },
-              })
+            value={this.state.updatedPetDetails.newPetColor}
+        onChange={(e) =>
+          this.setState({
+            updatedPetDetails: { ...this.state.updatedPetDetails, newPetColor: e.target.value },
+          })
             }
           >
             <option value="" disabled>
@@ -260,14 +272,14 @@ class PetsTable extends Component {
           </select>
           <select
             className={"form-control col-md-2 mr-2"}
-            value={this.state.newPet.newPetOwnerId}
-            onChange={(e) =>
-              this.setState({
-                newPet: {
-                  ...this.state.newPet,
-                  newPetOwnerId: Number(e.target.value),
-                },
-              })
+            value={this.state.updatedPetDetails.newPetOwnerId}
+        onChange={(e) =>
+          this.setState({
+            updatedPetDetails: {
+              ...this.state.updatedPetDetails,
+              newPetOwnerId: e.target.value,
+            },
+          })
             }
           >
             <option>Pet Owner</option>
@@ -396,7 +408,7 @@ class PetsTable extends Component {
       </>
     );
   }
-
+  // delete a pet
   delete = async (id) => {
 
     const userConfirmed = window.confirm("Are you sure you want to delete this pet?");
@@ -408,37 +420,37 @@ class PetsTable extends Component {
       await axios.delete(`api/pets/${id}`);
       this.fetchData();
       toast.success("Successfully Deleted Pet!");
-      // this.setState({
-      //   errors: [],
-      //   successMessage: `Successfully removed pet`,
-      // });
-    } catch (err) {
-      this.setState({ errors: { error: [err.message] }, successMessage: null });
-    }
-  };
-  //old update
-  // update = async (id) => {
-  //   try {
-  //     await axios.put(`api/pets/${id}`);
-  //     this.fetchData();
-  //     toast.success("Successfully Updated Pet!")
-  //   } catch (err) {
-  //     this.setState({ errors: {error: [err.message] }, successMessage: null});
-  //   }
-  // }
 
-  update = async () => {
-    try {
-      await axios.put(`api/pets/${this.state.editingPetId}`, this.state.updatedPetDetails);
-      this.fetchData();
-      toast.success("Successfully Updated Pet!");
-      this.setState({ editingPetId: null, updatedPetDetails: {} }); // Reset editing
     } catch (err) {
       this.setState({ errors: { error: [err.message] }, successMessage: null });
     }
   };
+ // update pet info
+update = async () => {
+  const { newName, newImageUrl, newPetBreed, newPetColor, newPetOwnerId } = this.state.updatedPetDetails;
+
+  try {
+    const updatedPet = {
+      name: newName,
+      imageUrl: newImageUrl,
+      petBreed: newPetBreed,
+      petColor: newPetColor,
+      petOwnerId: newPetOwnerId
+    };
+
+    await axios.put(`api/pets/${this.state.editingPetId}`, updatedPet);
+
+    this.fetchData();
+    toast.success("Successfully Updated Pet!");
+    this.setState({ editingPetId: null, updatedPetDetails: {} }); // Reset editing state
+  } catch (err) {
+    toast.error("Update Failed: " + err.message);
+    this.setState({ errors: { error: [err.message] }, successMessage: null });
+  }
+};
+
   
-
+  //check in a pet in DB
   checkIn = async (id) => {
     try {
       await axios.put(`api/pets/${id}/checkin`);
@@ -452,7 +464,7 @@ class PetsTable extends Component {
       this.setState({ errors: { error: [err.message] }, successMessage: null });
     }
   };
-
+  // checkout a pet in DB
   checkOut = async (id) => {
     try {
       await axios.put(`api/pets/${id}/checkout`);
@@ -466,16 +478,12 @@ class PetsTable extends Component {
       this.setState({ errors: { error: [err.message] }, successMessage: null });
     }
   };
-
+  // getting the pet data from DB
   fetchData = async () => {
     try {
       const response = await axios.get("api/pets/");
       this.props.dispatch({ type: "SET_PETS", payload: response.data });
       this.props.fetchPetOwners();
-
-      // stretch goal 1: grab a list of breeds from the backend
-      // stretch goal 2: grab a list of colors from the backend
-
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ errors: { error: [err.message] }, successMessage: null });
