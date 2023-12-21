@@ -13,7 +13,7 @@ back to the dotnet API. The dotnet API is available at `http://localhost:5000/` 
 Please Note: If you get a 'Request failed with status code 431' error, this is likely a red herring (not a real error).
 It is likely caused because your controllers do not have any valid routes set up yet.
 
-If you run this app, go ahead and try the konami code sequence...
+If you run this app, go ahead and try the konami code sequence... I added this for funsies
 
 ## Screenshots
 ### Finished project
